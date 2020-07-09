@@ -17,7 +17,8 @@ export default class App extends React.Component {
       {text: 'Learn CSS', important: true, done: false, id:2}, 
       {text: 'Learn JS', important: false, done: false, id:3}  
     ],
-    filter: 'all' // all || active || done
+    filter: 'all', // all || active || done
+    search: '', // type string
   }
 
   filter = (arr, filter) => {
@@ -31,6 +32,19 @@ export default class App extends React.Component {
       default:
         return arr;
     }
+  }
+
+  search = (arr, searchText) => {
+    if (!searchText) {
+      return arr;
+    }
+
+    const newArr = arr.filter((item) => {
+      //return item.text.indexOf(searchText) > -1;
+      return item.text.toUpperCase().includes(searchText.toUpperCase());
+    });
+
+    return newArr;
   }
 
   onDelete = (id) => {
@@ -104,18 +118,24 @@ export default class App extends React.Component {
     });
   }
 
+  onSearchChange = (search) => {
+    this.setState({
+      search: search
+    });
+  }
+
   render() {
-    const { todoData, filter } = this.state;
+    const { todoData, filter, search } = this.state;
 
     const doneSize = this.state.todoData.filter(el => el.done).length;
     const todoSize = this.state.todoData.length - doneSize; 
-    const visibleTodos = this.filter(todoData, filter);
+    const visibleTodos = this.search(this.filter(todoData, filter), search);
     
     return (
       <div className="App">
         <Header done={doneSize} todo={todoSize}/>
         <div className="line">
-          <SearchBlock />
+          <SearchBlock onSearchChange={this.onSearchChange} />
           <Filter onFilterChange={this.onFilterChange} filter={filter} />
         </div>
         <ItemAddForm onAdd={this.onAdd}/>
